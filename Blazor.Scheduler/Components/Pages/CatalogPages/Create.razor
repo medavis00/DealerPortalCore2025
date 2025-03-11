@@ -1,0 +1,125 @@
+﻿@page "/catalogs/create"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Blazor.Scheduler.Entities
+@inject IDbContextFactory<SchedulerDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Catalog</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Catalog" OnValidSubmit="AddCatalog" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="title" class="form-label">Title:</label> 
+                <InputText id="title" @bind-Value="Catalog.Title" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Catalog.Title" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="author" class="form-label">Author:</label> 
+                <InputText id="author" @bind-Value="Catalog.Author" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Catalog.Author" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="instructorname" class="form-label">InstructorName:</label> 
+                <InputText id="instructorname" @bind-Value="Catalog.InstructorName" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Catalog.InstructorName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="dateoffered" class="form-label">DateOffered:</label> 
+                <InputDate id="dateoffered" @bind-Value="Catalog.DateOffered" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Catalog.DateOffered" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="lengthinminutes" class="form-label">LengthInMinutes:</label> 
+                <InputNumber id="lengthinminutes" @bind-Value="Catalog.LengthInMinutes" class="form-control" /> 
+                <ValidationMessage For="() => Catalog.LengthInMinutes" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="description" class="form-label">Description:</label> 
+                <InputText id="description" @bind-Value="Catalog.Description" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Catalog.Description" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="totalnumberofstudents" class="form-label">TotalNumberOfStudents:</label> 
+                <InputNumber id="totalnumberofstudents" @bind-Value="Catalog.TotalNumberOfStudents" class="form-control" /> 
+                <ValidationMessage For="() => Catalog.TotalNumberOfStudents" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="maximumcapacity" class="form-label">MaximumCapacity:</label> 
+                <InputNumber id="maximumcapacity" @bind-Value="Catalog.MaximumCapacity" class="form-control" /> 
+                <ValidationMessage For="() => Catalog.MaximumCapacity" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="teamsmeetinglink" class="form-label">TeamsMeetingLink:</label> 
+                <InputText id="teamsmeetinglink" @bind-Value="Catalog.TeamsMeetingLink" class="form-control" /> 
+                <ValidationMessage For="() => Catalog.TeamsMeetingLink" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="replaylink" class="form-label">ReplayLink:</label> 
+                <InputText id="replaylink" @bind-Value="Catalog.ReplayLink" class="form-control" /> 
+                <ValidationMessage For="() => Catalog.ReplayLink" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="islive" class="form-label">IsLive:</label> 
+                <InputCheckbox id="islive" @bind-Value="Catalog.IsLive" class="form-check-input" /> 
+                <ValidationMessage For="() => Catalog.IsLive" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="enrollmentstatus" class="form-label">EnrollmentStatus:</label> 
+                <InputText id="enrollmentstatus" @bind-Value="Catalog.EnrollmentStatus" class="form-control" /> 
+                <ValidationMessage For="() => Catalog.EnrollmentStatus" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="topic" class="form-label">Topic:</label> 
+                <InputText id="topic" @bind-Value="Catalog.Topic" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Catalog.Topic" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="tags" class="form-label">Tags:</label> 
+                <InputText id="tags" @bind-Value="Catalog.Tags" class="form-control" /> 
+                <ValidationMessage For="() => Catalog.Tags" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="createdat" class="form-label">CreatedAt:</label> 
+                <InputDate id="createdat" @bind-Value="Catalog.CreatedAt" class="form-control" /> 
+                <ValidationMessage For="() => Catalog.CreatedAt" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="updatedat" class="form-label">UpdatedAt:</label> 
+                <InputDate id="updatedat" @bind-Value="Catalog.UpdatedAt" class="form-control" /> 
+                <ValidationMessage For="() => Catalog.UpdatedAt" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="isactive" class="form-label">IsActive:</label> 
+                <InputCheckbox id="isactive" @bind-Value="Catalog.IsActive" class="form-check-input" /> 
+                <ValidationMessage For="() => Catalog.IsActive" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/catalogs">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Catalog Catalog { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddCatalog()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Catalog.Add(Catalog);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/catalogs");
+    }
+}

@@ -1,0 +1,78 @@
+﻿@page "/catalogs/details"
+@using Microsoft.EntityFrameworkCore
+@using Blazor.Scheduler.Entities
+@inject IDbContextFactory<SchedulerDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Catalog</h2>
+    <hr />
+    @if (catalog is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@catalog.Title</dd>
+            <dt class="col-sm-2">Author</dt>
+            <dd class="col-sm-10">@catalog.Author</dd>
+            <dt class="col-sm-2">InstructorName</dt>
+            <dd class="col-sm-10">@catalog.InstructorName</dd>
+            <dt class="col-sm-2">DateOffered</dt>
+            <dd class="col-sm-10">@catalog.DateOffered</dd>
+            <dt class="col-sm-2">LengthInMinutes</dt>
+            <dd class="col-sm-10">@catalog.LengthInMinutes</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@catalog.Description</dd>
+            <dt class="col-sm-2">TotalNumberOfStudents</dt>
+            <dd class="col-sm-10">@catalog.TotalNumberOfStudents</dd>
+            <dt class="col-sm-2">MaximumCapacity</dt>
+            <dd class="col-sm-10">@catalog.MaximumCapacity</dd>
+            <dt class="col-sm-2">TeamsMeetingLink</dt>
+            <dd class="col-sm-10">@catalog.TeamsMeetingLink</dd>
+            <dt class="col-sm-2">ReplayLink</dt>
+            <dd class="col-sm-10">@catalog.ReplayLink</dd>
+            <dt class="col-sm-2">IsLive</dt>
+            <dd class="col-sm-10">@catalog.IsLive</dd>
+            <dt class="col-sm-2">EnrollmentStatus</dt>
+            <dd class="col-sm-10">@catalog.EnrollmentStatus</dd>
+            <dt class="col-sm-2">Topic</dt>
+            <dd class="col-sm-10">@catalog.Topic</dd>
+            <dt class="col-sm-2">Tags</dt>
+            <dd class="col-sm-10">@catalog.Tags</dd>
+            <dt class="col-sm-2">CreatedAt</dt>
+            <dd class="col-sm-10">@catalog.CreatedAt</dd>
+            <dt class="col-sm-2">UpdatedAt</dt>
+            <dd class="col-sm-10">@catalog.UpdatedAt</dd>
+            <dt class="col-sm-2">IsActive</dt>
+            <dd class="col-sm-10">@catalog.IsActive</dd>
+        </dl>
+        <div>
+            <a href="@($"/catalogs/edit?id={catalog.Id}")">Edit</a> |
+            <a href="@($"/catalogs")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Catalog? catalog;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        catalog = await context.Catalog.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (catalog is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

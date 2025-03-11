@@ -1,0 +1,54 @@
+﻿@page "/catalogs"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Blazor.Scheduler.Entities
+@implements IAsyncDisposable
+@inject IDbContextFactory<SchedulerDbContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="catalogs/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Catalog">
+
+    <TemplateColumn Context="catalog">
+        <a href="@($"catalogs/edit?id={catalog.Id}")">Edit</a> |
+        <a href="@($"catalogs/details?id={catalog.Id}")">Details</a> |
+        <a href="@($"catalogs/delete?id={catalog.Id}")">Delete</a>
+    </TemplateColumn>
+
+
+    <PropertyColumn Property="catalog => catalog.Title" Title="Title" />
+    <PropertyColumn Property="catalog => catalog.Author" Title="Auth" />
+    <PropertyColumn Property="catalog => catalog.InstructorName" Title="Instr" />
+    <PropertyColumn Property="catalog => catalog.DateOffered" Title="Date" />
+    <PropertyColumn Property="catalog => catalog.LengthInMinutes" Title="Length" />
+    <PropertyColumn Property="catalog => catalog.Description" Title="Desc" />
+    <PropertyColumn Property="catalog => catalog.TotalNumberOfStudents" Title="" />
+    <PropertyColumn Property="catalog => catalog.MaximumCapacity" Title="" />
+@*     <PropertyColumn Property="catalog => catalog.TeamsMeetingLink" />
+    <PropertyColumn Property="catalog => catalog.ReplayLink" />
+    <PropertyColumn Property="catalog => catalog.IsLive" />
+    <PropertyColumn Property="catalog => catalog.EnrollmentStatus" />*@
+    <PropertyColumn Property="catalog => catalog.Topic" Title="Topic" />
+    <PropertyColumn Property="catalog => catalog.Tags" Title="Tags" />
+@*     <PropertyColumn Property="catalog => catalog.CreatedAt" />
+ *@    <PropertyColumn Property="catalog => catalog.UpdatedAt" Title="Updated" />
+    <PropertyColumn Property="catalog => catalog.IsActive" Title="Active" />
+
+</QuickGrid>
+
+@code {
+    private SchedulerDbContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
