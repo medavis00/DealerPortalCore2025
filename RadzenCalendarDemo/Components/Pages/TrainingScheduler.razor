@@ -1,0 +1,56 @@
+﻿@page "/training-scheduler"
+
+<h3>TrainingScheduler</h3>
+
+
+<RadzenScheduler TItem="TrainingSession"
+                 Data="@TrainingSessions"
+                 StartProperty="StartTime"
+                 EndProperty="EndTime"
+                 TextProperty="Title"
+                 SelectedView="SchedulerView.Month"
+                 SlotRender="@OnSlotRender"
+@*                  AppointmentRender="@OnAppointmentRender"
+                 AppointmentSelect="@OnAppointmentSelect" *@
+                 AllowCreate="true"
+                 AllowEdit="true"
+                 AllowDelete="true"
+                 @bind-SelectedDate="@SelectedDate">
+</RadzenScheduler>
+
+@code {
+    // Define the model
+    public class TrainingSession
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+    }
+
+    // Sample training session data
+    private List<TrainingSession> TrainingSessions = new()
+    {
+        new TrainingSession { Id = 1, Title = "Agile Fundamentals", StartTime = DateTime.Today.AddHours(10), EndTime = DateTime.Today.AddHours(12) },
+        new TrainingSession { Id = 2, Title = "Scrum Master Training", StartTime = DateTime.Today.AddDays(1).AddHours(9), EndTime = DateTime.Today.AddDays(1).AddHours(11) }
+    };
+
+    private DateTime SelectedDate = DateTime.Today;
+
+    // Event Handlers (Customize as Needed)
+    private void OnSlotRender(SchedulerSlotRenderEventArgs args)
+    {
+        // Customize time slots if needed
+    }
+
+    // private void OnAppointmentRender(SchedulerAppointmentRenderEventArgs args)
+    // {
+    //     // Customize how events are displayed
+    // }
+
+    // private void OnAppointmentSelect(SchedulerAppointmentSelectEventArgs args)
+    // {
+    //     var selectedEvent = (TrainingSession)args.Appointment;
+    //     Console.WriteLine($"Selected: {selectedEvent.Title}");
+    // }
+}
