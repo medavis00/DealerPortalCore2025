@@ -1,0 +1,216 @@
+﻿@page "/calendar03"
+@rendermode InteractiveServer
+
+@using System.Globalization
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Blazor.Scheduler.Entities
+
+@inject IDbContextFactory<SchedulerDbContext> DbFactory
+
+
+<h3>Month View Calendar - 03</h3>
+
+<div class="calendar-container">
+    <div class="calendar-header">
+        <button @onclick="PreviousMonth">&#9665;</button>
+        <h4>@CurrentMonth.ToString("MMMM yyyy")</h4>
+        <button @onclick="NextMonth">&#9655;</button>
+    </div>
+
+    <div class="calendar-grid">
+        @foreach (var day in DaysOfWeek)
+        {
+            <div class="day-header">@day</div>
+        }
+
+        @foreach (var date in CalendarDays)
+        {
+            var scheduledClass = ScheduledClasses.FirstOrDefault(c => c.DateOffered.Date == date.Date);
+            <div class="calendar-day @(date.Month == CurrentMonth.Month ? "current-month" : "other-month") @(scheduledClass != null ? "has-class" : "")" @onclick="() => ShowClassDetails(scheduledClass)">
+                @date.Day
+                @if (scheduledClass != null)
+                {
+                    <div class="class-indicator">📅</div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@if (SelectedClass != null)
+{
+    <div class="modal">
+        <div class="modal-content">
+            <span class="close" @onclick="CloseModal">&times;</span>
+            <h3>@SelectedClass.Title</h3>
+            <p><strong>Time:</strong> @SelectedClass.DateOffered.ToShortTimeString()</p>
+            <p><strong>Meeting Link:</strong> <a href="@SelectedClass.MeetingLink" target="_blank">Join Meeting</a></p>
+        </div>
+    </div>
+}
+
+<style>
+    .calendar-container {
+        width: 600px;
+        margin: auto;
+        text-align: center;
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+    }
+
+    .day-header {
+        font-weight: bold;
+        background: #f0f0f0;
+        padding: 10px;
+        font-size: 1.2em;
+    }
+
+    .calendar-day {
+        padding: 20px;
+        border: 2px solid #ccc;
+        text-align: center;
+        font-size: 1.5em;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .current-month {
+        background: #fff;
+    }
+
+    .other-month {
+        background: #eaeaea;
+        color: #888;
+    }
+
+    .has-class {
+        background: #ffeb3b;
+    }
+
+    .class-indicator {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        font-size: 1.2em;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+        width: 300px;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 1.5em;
+        cursor: pointer;
+    }
+</style>
+
+@code {
+
+    private SchedulerDbContext context = default;
+    private DateTime CurrentMonth = DateTime.Today;
+    private List<string> DaysOfWeek = new() { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+    private List<DateTime> CalendarDays = new();
+    private List<ScheduledClass> ScheduledClasses = new();
+    private ScheduledClass SelectedClass;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        context = DbFactory.CreateDbContext();
+        await LoadScheduledClasses();
+        GenerateCalendar();
+    }
+
+    private async Task LoadScheduledClasses()
+    {
+        await using var dbContext = await DbFactory.CreateDbContextAsync();
+        ScheduledClasses = await dbContext.Catalog
+            .Where(c => c.DateOffered.Year == CurrentMonth.Year && c.DateOffered.Month == CurrentMonth.Month)
+            .Select(c => new ScheduledClass
+                {
+                    Title = c.Title, // Ensure Catalog has a Title property
+                    DateOffered = c.DateOffered,
+                    MeetingLink = c.TeamsMeetingLink // Ensure Catalog has a MeetingLink property
+                })
+            .ToListAsync();
+    }
+
+    private async Task PreviousMonth()
+    {
+        CurrentMonth = CurrentMonth.AddMonths(-1);
+        await LoadScheduledClasses();
+        GenerateCalendar();
+    }
+
+    private async Task NextMonth()
+    {
+        CurrentMonth = CurrentMonth.AddMonths(1);
+        await LoadScheduledClasses();
+        GenerateCalendar();
+    }
+
+    private void ShowClassDetails(ScheduledClass scheduledClass)
+    {
+        if (scheduledClass != null)
+        {
+            SelectedClass = scheduledClass;
+        }
+    }
+
+    private void CloseModal()
+    {
+        SelectedClass = null;
+    }
+
+    private void GenerateCalendar()
+    {
+        CalendarDays.Clear();
+        DateTime firstDay = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
+        int daysInMonth = DateTime.DaysInMonth(CurrentMonth.Year, CurrentMonth.Month);
+        int startOffset = (int)firstDay.DayOfWeek;
+
+        DateTime startDate = firstDay.AddDays(-startOffset);
+        for (int i = 0; i < 42; i++)
+        {
+            CalendarDays.Add(startDate.AddDays(i));
+        }
+    }
+
+    private class ScheduledClass
+    {
+        public string Title { get; set; }
+        public DateTime DateOffered { get; set; }
+        public string MeetingLink { get; set; }
+    }
+}

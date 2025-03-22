@@ -1,0 +1,22 @@
+﻿@page "/JavaScriptCalendar"
+@inject IJSRuntime JSRuntime
+
+<h3>JavaScriptCalendar</h3>
+
+<div id="calendar"></div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initCalendar", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    public void OnDateClicked(string date)
+    {
+        Console.WriteLine($"Date clicked: {date}");
+    }
+}

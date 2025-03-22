@@ -1,0 +1,23 @@
+﻿@page "/calendardemo"
+@rendermode InteractiveServer
+
+
+<h3>Calendar Demo</h3>
+
+@* <RadzenCalendar @bind-Value="selectedDate" Change="OnDateChanged" />
+ *@
+Drop Down Calendar:
+<RadzenDatePicker @bind-Value="selectedDate" ShowCalendarWeek="true" />
+
+
+<p>Selected Date: @(selectedDate.HasValue ? selectedDate.Value.ToString("MMMM dd, yyyy") : "None")</p>
+
+@code {
+    private DateTime? selectedDate = DateTime.Today;
+
+    private void OnDateChanged(DateTime? newDate)
+    {
+        selectedDate = newDate;
+        Console.WriteLine($"Date changed to: {selectedDate}");
+    }
+}

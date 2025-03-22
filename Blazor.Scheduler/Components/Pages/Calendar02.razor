@@ -1,0 +1,150 @@
+﻿@page "/calendar02"
+@rendermode InteractiveServer
+
+@using System.Globalization
+@using Microsoft.EntityFrameworkCore
+@* @inject CalendarDbContext DbContext *@
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Blazor.Scheduler.Entities
+
+@inject IDbContextFactory<SchedulerDbContext> DbFactory
+
+
+<h3>Month View Calendar</h3>
+
+<div class="calendar-container">
+    <div class="calendar-header">
+        <button @onclick="PreviousMonth">&#9665;</button>
+        <h4>@CurrentMonth.ToString("MMMM yyyy")</h4>
+        <button @onclick="NextMonth">&#9655;</button>
+    </div>
+
+    <div class="calendar-grid">
+        @foreach (var day in DaysOfWeek)
+        {
+            <div class="day-header">@day</div>
+        }
+
+        @foreach (var date in CalendarDays)
+        {
+            var hasClass = ScheduledClasses.Contains(date.Date);
+            <div class="calendar-day @(date.Month == CurrentMonth.Month ? "current-month" : "other-month") @(hasClass ? "has-class" : "")">
+                @date.Day
+                @if (hasClass)
+                {
+                    <div class="class-indicator">📅</div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .calendar-container {
+    width: 600px;
+    margin: auto;
+    text-align: center;
+    }
+
+    .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    }
+
+    .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    }
+
+    .day-header {
+    font-weight: bold;
+    background: #f0f0f0;
+    padding: 10px;
+    font-size: 1.2em;
+    }
+
+    .calendar-day {
+    padding: 20px;
+    border: 2px solid #ccc;
+    text-align: center;
+    font-size: 1.5em;
+    position: relative;
+    }
+
+    .current-month {
+    background: #fff;
+    }
+
+    .other-month {
+    background: #eaeaea;
+    color: #888;
+    }
+
+    .has-class {
+    background: #ffeb3b;
+    }
+
+    .class-indicator {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 1.2em;
+    }
+</style>
+
+@code {
+
+    private SchedulerDbContext context = default;
+    private DateTime CurrentMonth = DateTime.Today;
+    private List<string> DaysOfWeek = new() { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+    private List<DateTime> CalendarDays = new();
+    private HashSet<DateTime> ScheduledClasses = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        context = DbFactory.CreateDbContext();
+        await LoadScheduledClasses();
+        GenerateCalendar();
+    }
+
+    private async Task LoadScheduledClasses()
+    {
+        ScheduledClasses = (await context.Catalog
+            .Where(c => c.DateOffered.Year == CurrentMonth.Year && c.DateOffered.Month == CurrentMonth.Month)
+            .Select(c => c.DateOffered.Date)
+            .ToListAsync())
+            .ToHashSet();
+    }
+
+    private void GenerateCalendar()
+    {
+        CalendarDays.Clear();
+        DateTime firstDay = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
+        int daysInMonth = DateTime.DaysInMonth(CurrentMonth.Year, CurrentMonth.Month);
+        int startOffset = (int)firstDay.DayOfWeek;
+
+        DateTime startDate = firstDay.AddDays(-startOffset);
+        for (int i = 0; i < 42; i++)
+        {
+            CalendarDays.Add(startDate.AddDays(i));
+        }
+    }
+
+    private async Task PreviousMonth()
+    {
+        CurrentMonth = CurrentMonth.AddMonths(-1);
+        await LoadScheduledClasses();
+        GenerateCalendar();
+    }
+
+    private async Task NextMonth()
+    {
+        CurrentMonth = CurrentMonth.AddMonths(1);
+        await LoadScheduledClasses();
+        GenerateCalendar();
+    }
+}

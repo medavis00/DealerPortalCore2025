@@ -1,0 +1,141 @@
+﻿<h3>JScalendar</h3>
+
+
+@page "/jscalendar"
+
+<div class="calendar">
+    <div class="header">
+        <button @onclick="PreviousMonth">◄</button>
+        <span>@CurrentDate.ToString("MMMM yyyy")</span>
+        <button @onclick="NextMonth">►</button>
+    </div>
+
+    <div class="days">
+        @foreach (var day in new[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" })
+        {
+            <div class="weekday">@day</div>
+        }
+    </div>
+
+    <div class="days">
+        @foreach (var day in GetCalendarDays())
+        {
+            <div class="@GetDayClass(day)" @onclick="() => SelectDay(day)">
+                @day.Number
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .calendar {
+        max-width: 300px;
+        font-family: Arial, sans-serif;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: #f0f0f0;
+    }
+
+    .days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
+
+    .day {
+        text-align: center;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+        .day:hover {
+            background-color: #f0f0f0;
+        }
+
+    .weekday {
+        text-align: center;
+        padding: 5px;
+        background-color: #e0e0e0;
+        font-weight: bold;
+    }
+
+    .inactive {
+        color: #999;
+    }
+
+    button {
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+</style>
+
+@code {
+    private DateTime CurrentDate { get; set; } = DateTime.Now;
+
+    private void PreviousMonth()
+    {
+        CurrentDate = CurrentDate.AddMonths(-1);
+    }
+
+    private void NextMonth()
+    {
+        CurrentDate = CurrentDate.AddMonths(1);
+    }
+
+    private record CalendarDay(int Number, bool IsCurrentMonth);
+
+    private IEnumerable<CalendarDay> GetCalendarDays()
+    {
+        var days = new List<CalendarDay>();
+
+        // First day of current month
+        var firstDay = new DateTime(CurrentDate.Year, CurrentDate.Month, 1);
+        var lastDay = firstDay.AddMonths(1).AddDays(-1);
+
+        // Calculate start day (0 = Sunday)
+        var startDay = ((int)firstDay.DayOfWeek + 6) % 7; // Convert to Monday start if needed
+
+        // Previous month days
+        var prevMonthLastDay = firstDay.AddDays(-1);
+        var prevMonthDays = startDay == 0 ? 6 : startDay;
+        for (int i = prevMonthDays; i > 0; i--)
+        {
+            days.Add(new CalendarDay(prevMonthLastDay.Day - i + 1, false));
+        }
+
+        // Current month days
+        for (int i = 1; i <= lastDay.Day; i++)
+        {
+            days.Add(new CalendarDay(i, true));
+        }
+
+        // Next month days
+        var totalDays = prevMonthDays + lastDay.Day;
+        var remainingDays = 42 - totalDays; // 6 weeks total
+        for (int i = 1; i <= remainingDays; i++)
+        {
+            days.Add(new CalendarDay(i, false));
+        }
+
+        return days;
+    }
+
+    private string GetDayClass(CalendarDay day)
+    {
+        return day.IsCurrentMonth ? "day" : "day inactive";
+    }
+
+    private void SelectDay(CalendarDay day)
+    {
+        if (day.IsCurrentMonth)
+        {
+            Console.WriteLine($"Selected: {CurrentDate:MMMM} {day.Number}, {CurrentDate.Year}");
+            // Add your selection handling logic here
+        }
+    }
+}
