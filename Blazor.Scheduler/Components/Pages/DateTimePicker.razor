@@ -1,0 +1,30 @@
+﻿@inject IJSRuntime JS
+
+<input type="text" id="dateTimeInput" class="form-control" />
+<p>Selected Date & Time: @selectedDateTime</p>
+
+@code {
+    private string selectedDateTime;
+    private DotNetObjectReference<DateTimePicker> dotNetRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("initDateTimePicker", "dateTimeInput", dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public void OnDateSelected(string dateTime)
+    {
+        selectedDateTime = dateTime;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        dotNetRef?.Dispose();
+    }
+}

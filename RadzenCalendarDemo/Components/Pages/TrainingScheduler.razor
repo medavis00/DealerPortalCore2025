@@ -1,10 +1,30 @@
 ﻿@page "/training-scheduler"
 @rendermode InteractiveServer
+@using MudBlazor
 
 <h3>TrainingScheduler</h3>
 
 Drop Down Calendar:
 <RadzenDatePicker @bind-Value="selectedDate" ShowCalendarWeek="true" />
+
+
+
+@* 
+<p>Selected Date & Time: @selectedDate</p>
+
+
+<p>Selected Date & Time: @selectedDateTime</p>
+
+
+<h3>Welcome to MudBlazor DateTime Picker Example</h3>
+ *@
+@* 
+<MudDatePicker @bind-Date="selectedDate" Label="Select Date" Format="yyyy-MM-dd" Variant="Variant.Filled" />
+
+<MudTimePicker @bind-Time="selectedTime" Label="Select Time" Variant="Variant.Filled" />
+ *@
+<p>Selected Date & Time: @SelectedDateTime</p>
+
 
 
 @* <RadzenScheduler TItem="TrainingSession"
@@ -24,11 +44,24 @@ Drop Down Calendar:
  *@
 @code {
 
-    private DateTime? selectedDate = DateTime.Today;
+    private DateTime selectedDateTime = DateTime.Now;
+
+    // private DateTime? selectedDate = DateTime.Today;
+    // private TimeSpan selectedTime = DateTime.Now.TimeOfDay;
+
+    // private DateTime selectedDateTime => selectedDate.Date + selectedTime;
+    //private DateTime selectedDate = DateTime.Now;
+
+
+    private DateTime selectedDate = DateTime.Today;
+    private TimeSpan selectedTime = DateTime.Now.TimeOfDay;
+
+    private DateTime SelectedDateTime => selectedDate.Date + selectedTime;
+
 
     private void OnDateChanged(DateTime? newDate)
     {
-        selectedDate = newDate;
+        selectedDate = (DateTime)newDate;
         Console.WriteLine($"Date changed to: {selectedDate}");
     }
 
@@ -52,10 +85,10 @@ Drop Down Calendar:
     private DateTime SelectedDate = DateTime.Today;
 
     // Event Handlers (Customize as Needed)
-    private void OnSlotRender(SchedulerSlotRenderEventArgs args)
-    {
-        // Customize time slots if needed
-    }
+    // private void OnSlotRender(SchedulerSlotRenderEventArgs args)
+    // {
+    //     // Customize time slots if needed
+    // }
 
     // private void OnAppointmentRender(SchedulerAppointmentRenderEventArgs args)
     // {

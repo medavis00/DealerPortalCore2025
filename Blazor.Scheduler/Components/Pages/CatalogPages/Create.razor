@@ -9,6 +9,7 @@
 <PageTitle>Create</PageTitle>
 
 <h1>Create</h1>
+<button type="button" class="btn btn-secondary mb-3" @onclick="FillTestData">Fill Test Data</button>
 
 <h2>Catalog</h2>
 <hr />
@@ -31,13 +32,19 @@
                 <label for="instructorname" class="form-label">InstructorName:</label> 
                 <InputText id="instructorname" @bind-Value="Catalog.InstructorName" class="form-control" aria-required="true"/> 
                 <ValidationMessage For="() => Catalog.InstructorName" class="text-danger" /> 
-            </div>        
+            </div>
             <div class="mb-3">
+                <label for="dateoffered" class="form-label">Date Offered:</label>
+                <InputText id="dateoffered" @bind-Value="DateOfferedString" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => Catalog.DateOffered" class="text-danger" />
+            </div>
+
+@*             <div class="mb-3">
                 <label for="dateoffered" class="form-label">DateOffered:</label> 
                 <InputDate id="dateoffered" @bind-Value="Catalog.DateOffered" class="form-control" aria-required="true"/> 
                 <ValidationMessage For="() => Catalog.DateOffered" class="text-danger" /> 
             </div>        
-            <div class="mb-3">
+ *@            <div class="mb-3">
                 <label for="lengthinminutes" class="form-label">LengthInMinutes:</label> 
                 <InputNumber id="lengthinminutes" @bind-Value="Catalog.LengthInMinutes" class="form-control" /> 
                 <ValidationMessage For="() => Catalog.LengthInMinutes" class="text-danger" /> 
@@ -85,8 +92,11 @@
             <div class="mb-3">
                 <label for="tags" class="form-label">Tags:</label> 
                 <InputText id="tags" @bind-Value="Catalog.Tags" class="form-control" /> 
-                <ValidationMessage For="() => Catalog.Tags" class="text-danger" /> 
-            </div>        
+                <ValidationMessage For="() => Catalog.Tags" class="text-danger" />
+                <small class="form-text text-muted">e.g., "beginner, PADI, safety"</small>
+            </div> 
+            
+
             <div class="mb-3">
                 <label for="createdat" class="form-label">CreatedAt:</label> 
                 <InputDate id="createdat" @bind-Value="Catalog.CreatedAt" class="form-control" /> 
@@ -103,6 +113,7 @@
                 <ValidationMessage For="() => Catalog.IsActive" class="text-danger" /> 
             </div>        
             <button type="submit" class="btn btn-primary">Create</button>
+
         </EditForm>
     </div>
 </div>
@@ -122,5 +133,39 @@
         context.Catalog.Add(Catalog);
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/catalogs");
+    }
+    private string DateOfferedString
+    {
+        get => Catalog.DateOffered.ToString("yyyy-MM-ddTHH:mm");
+        set
+        {
+            if (DateTime.TryParse(value, out var parsedDate))
+            {
+                Catalog.DateOffered = parsedDate;
+            }
+        }
+    }
+    private void FillTestData()
+    {
+        Catalog = new Catalog
+            {
+                Title = "Sample Course",
+                Author = "John Doe",
+                InstructorName = "Jane Smith",
+                DateOffered = DateTime.Now.AddDays(7), // Next week
+                LengthInMinutes = 120,
+                Description = "This is a sample description of the course.",
+                TotalNumberOfStudents = 50,
+                MaximumCapacity = 100,
+                TeamsMeetingLink = "https://teams.microsoft.com/l/meetup-join/sample",
+                ReplayLink = "https://replay.example.com/sample",
+                IsLive = true,
+                EnrollmentStatus = "Open",
+                Topic = "Software Engineering",
+                Tags = "C#, Blazor, ASP.NET",
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                IsActive = true
+            };
     }
 }
