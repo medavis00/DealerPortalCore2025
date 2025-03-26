@@ -1,0 +1,293 @@
+﻿@page "/catalog-form02"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Blazor.Scheduler.Entities
+@inject IDbContextFactory<SchedulerDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+
+<style>
+    .catalog-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    }
+
+    .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    }
+
+    .form-group {
+    margin-bottom: 15px;
+    }
+
+    .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    }
+
+    .form-control, .form-check-input {
+    max-width: 200px;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    }
+
+    .form-textarea-control {
+        max-width: 800px;
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+
+    .form-check-input {
+    width: auto;
+    margin-right: 10px;
+    }
+
+    .btn-primary {
+    padding: 8px 20px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    }
+
+    .btn-primary:hover {
+    background-color: #0056b3;
+    }
+
+    .full-width {
+    grid-column: 1 / -1;
+    }
+
+    .full-page-width {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 15px; /* Optional: adds some padding on the sides */
+}
+
+
+</style>
+
+<div class="catalog-container">
+    <h3>Catalog Form</h3>
+    <button type="button" class="btn btn-secondary" @onclick="PopulateTitle">Auto Fill</button>
+
+    <EditForm Model="@catalog" FormName="CatalogForm" OnValidSubmit="@HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <div style="display: flex; gap: 10px;">
+                    <InputText id="title" class="form-control" @bind-Value="catalog.Title" />
+                </div>
+                <ValidationMessage For="@(() => catalog.Title)" />
+            </div>
+
+            <div class="form-group">
+                <label for="author">Author</label>
+                <InputText id="author" class="form-control" @bind-Value="catalog.Author" />
+                <ValidationMessage For="@(() => catalog.Author)" />
+            </div>
+
+            <div class="form-group">
+                <label for="instructor">Instructor Name</label>
+                <InputText id="instructor" class="form-control" @bind-Value="catalog.InstructorName" />
+                <ValidationMessage For="@(() => catalog.InstructorName)" />
+            </div>
+
+            <div class="form-group">
+                <label for="dateOffered">Date Offered</label>
+                <InputDate id="dateOffered" class="form-control" @bind-Value="catalog.DateOffered" />
+                <ValidationMessage For="@(() => catalog.DateOffered)" />
+            </div>
+
+            <div class="form-group">
+                <label for="length">Length (Minutes)</label>
+                <InputSelect id="length" class="form-control" @bind-Value="catalog.LengthSelector">
+                    @foreach (var option in Catalog.GetLengthOptions)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group">
+                <label for="totalStudents">Total Students</label>
+                <InputNumber id="totalStudents" class="form-control" @bind-Value="catalog.TotalNumberOfStudents" />
+                <ValidationMessage For="@(() => catalog.TotalNumberOfStudents)" />
+            </div>
+
+            <div class="form-group">
+                <label for="maxCapacity">Max Capacity</label>
+                <InputNumber id="maxCapacity" class="form-control" @bind-Value="catalog.MaximumCapacity" />
+                <ValidationMessage For="@(() => catalog.MaximumCapacity)" />
+            </div>
+
+            <div class="form-group">
+                <label for="enrollment">Enrollment Status</label>
+                <InputSelect id="enrollment" class="form-control" @bind-Value="catalog.EnrollmentSelector">
+                    @foreach (var option in Catalog.GetEnrollmentOptions)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group">
+                <label for="topic">Topic</label>
+                <InputSelect id="topic" class="form-control" @bind-Value="catalog.TopicSelector">
+                    @foreach (var option in Catalog.GetTopicOptions)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group">
+                <label for="tags">Tags</label>
+                <InputText id="tags" class="form-control" @bind-Value="catalog.Tags" />
+                <small class="form-text text-muted">e.g., "beginner, PADI, safety"</small>
+            </div>
+
+            <div class="form-group">
+                <label for="createdAt">Created At</label>
+                <InputDate id="createdAt" class="form-control" @bind-Value="catalog.CreatedAt" />
+            </div>
+
+            <div class="form-group">
+                <label for="updatedAt">Updated At</label>
+                <InputDate id="updatedAt" class="form-control" @bind-Value="catalog.UpdatedAt" />
+            </div>
+
+            <div class="form-group">
+                <label for="isLive">Is Live</label>
+                <InputCheckbox id="isLive" class="form-check-input" @bind-Value="catalog.IsLive" />
+            </div>
+
+            <div class="form-group">
+                <label for="isActive">Is Active</label>
+                <InputCheckbox id="isActive" class="form-check-input" @bind-Value="catalog.IsActive" />
+            </div>
+        </div>
+        <div class="form-group full-page-width">
+            <label for="teamsLink">Teams Meeting Link</label>
+            <InputText id="teamsLink" class="form-textarea-control" @bind-Value="catalog.TeamsMeetingLink" />
+        </div>
+        <div class="form-group full-page-width">
+            <label for="replayLink">Replay Link</label>
+            <InputText id="replayLink" class="form-textarea-control" @bind-Value="catalog.ReplayLink" />
+        </div>
+        <div class="form-group full-page-width">
+            <label for="description">Description</label>
+            <InputTextArea id="description" class="form-textarea-control" @bind-Value="catalog.Description" />
+            <ValidationMessage For="@(() => catalog.Description)" />
+        </div>
+
+        <div class="form-group full-page-width">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+
+    </EditForm>
+</div>
+<!-- Submitted and debug sections remain unchanged -->
+@if (submitted)
+{
+    <div class="alert alert-success mt-3">
+        <p>Submitted Catalog:</p>
+        <ul>
+            <li>ID: @catalog.Id</li>
+            <li>Title: @catalog.Title</li>
+            <li>Author: @catalog.Author</li>
+            <li>Instructor Name: @catalog.InstructorName</li>
+            <li>Date Offered: @catalog.DateOffered.ToShortDateString()</li>
+            <li>Length: @catalog.LengthInMinutes minutes</li>
+            <li>Description: @catalog.Description</li>
+            <li>Total Number of Students: @catalog.TotalNumberOfStudents</li>
+            <li>Maximum Capacity: @(catalog.MaximumCapacity.HasValue ? catalog.MaximumCapacity.Value.ToString() : "Not Set")</li>
+            <li>Teams Meeting Link: @catalog.TeamsMeetingLink</li>
+            <li>Replay Link: @catalog.ReplayLink</li>
+            <li>Is Live: @catalog.IsLive</li>
+            <li>Enrollment Status: @catalog.EnrollmentStatus</li>
+            <li>Topic: @catalog.Topic</li>
+            <li>Tags: @catalog.Tags</li>
+            <li>Created At: @catalog.CreatedAt.ToShortDateString()</li>
+            <li>Updated At: @(catalog.UpdatedAt.HasValue ? catalog.UpdatedAt.Value.ToShortDateString() : "Not Set")</li>
+            <li>Is Active: @catalog.IsActive</li>
+        </ul>
+    </div>
+}
+
+<!-- Debugging: Show current state of catalog before submission -->
+@* <div class="mt-3">
+    <h4>Current Catalog State (Before Submit):</h4>
+    <p>Title: @catalog.Title</p>
+    <p>Author: @catalog.Author</p>
+    <p>Enrollment Status: @catalog.EnrollmentStatus</p>
+    <p>Length: @catalog.LengthInMinutes</p>
+    <p>Topic: @catalog.Topic</p>
+</div> *@
+
+@code {
+
+    [SupplyParameterFromForm]
+    private Catalog catalog { get; set; } = new();
+
+    private bool submitted = false;
+
+    private void HandleSubmit()
+    {
+        submitted = true;
+        // Here you would typically save to a database via a service
+        // e.g., await CatalogService.SaveCatalog(catalog);
+        Console.WriteLine($"Submitting: Title={catalog.Title}, Author={catalog.Author}, Enrollment={catalog.EnrollmentStatus}");
+        submitted = true;
+        StateHasChanged(); // Ensure UI updates after submission
+    }
+
+    private void PopulateTitle()
+    {
+        // catalog.Title = "Sample Course Title - " + DateTime.Now.ToString("MM/dd/yyyy");
+        // catalog.Author = "John Doe";
+        catalog = new Catalog
+            {
+                Title = "Scubapro Course",
+                Author = "John Doe",
+                InstructorName = "Dan Knauss",
+                DateOffered = DateTime.Now.AddDays(7), // Next week
+                LengthInMinutes = 120,
+                Description = "This is a sample description of the course.",
+                TotalNumberOfStudents = 50,
+                MaximumCapacity = 100,
+                TeamsMeetingLink = "https://teams.microsoft.com/l/meetup-join/sample",
+                ReplayLink = "https://replay.example.com/sample",
+                IsLive = true,
+                EnrollmentStatus = "Open",
+                Topic = "CaveDiving",
+                Tags = "beginner, PADI, safety",
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                IsActive = true
+            };
+
+
+        StateHasChanged(); // Ensure UI updates after setting the title
+    }
+
+    protected override void OnInitialized()
+    {
+        // Ensure catalog is initialized only once
+        catalog = catalog ?? new Catalog();
+    }
+}
+
+}

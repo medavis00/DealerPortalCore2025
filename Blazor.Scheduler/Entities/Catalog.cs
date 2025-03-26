@@ -98,20 +98,21 @@ namespace Blazor.Scheduler.Entities
 
         // Hardcoded dropdown options for Topic
         private static readonly List<string> TopicOptions = new List<string>
-    {
-        "OpenWaterDiving",
-        "AdvancedOpenWater",
-        "RescueDiving",
-        "DiveSafetyAndFirstAid",
-        "EquipmentMaintenance",
-        "UnderwaterPhotography",
-        "WreckDiving",
-        "CaveDiving",
-        "NightDiving",
-        "MarineBiology",
-        "TechnicalDiving",
-        "DivePlanning"
-    };
+        {
+            "OpenWaterDiving",
+            "AdvancedOpenWater",
+            "RescueDiving",
+            "DiveSafetyAndFirstAid",
+            "EquipmentMaintenance",
+            "UnderwaterPhotography",
+            "WreckDiving",
+            "CaveDiving",
+            "NightDiving",
+            "MarineBiology",
+            "TechnicalDiving",
+            "DivePlanning"
+        };
+
         [NotMapped]
         public string TopicSelector
         {
