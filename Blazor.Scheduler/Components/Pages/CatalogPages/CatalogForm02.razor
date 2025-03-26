@@ -6,6 +6,24 @@
 @inject IDbContextFactory<SchedulerDbContext> DbFactory
 @inject NavigationManager NavigationManager
 
+@*
+Comment Block
+
+Key changes:
+
+Moved the description div outside the form-grid container
+Changed its class from full-width to full-page-width
+Added new CSS to make full-page-width span the entire page width
+Kept the submit button in its own div (you might want to adjust its styling too)
+Notes:
+
+The form-grid likely has a constrained width (like a max-width or container), so moving the description outside it allows it to span the full page
+width: 100% ensures it takes up the full viewport width
+The optional padding: 0 15px prevents the content from touching the edges of the screen, but you can adjust or remove it based on your design
+You might want to adjust the submit button's width too (e.g., keep it inside form-grid or give it its own styling) depending on your layout preferences
+If your page has a container or specific layout system, you might need to tweak the CSS further. Let me know if you need adjustments based on your specific design system!
+
+*@
 
 <style>
     .catalog-container {
