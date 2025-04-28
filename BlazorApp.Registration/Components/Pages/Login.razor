@@ -1,0 +1,60 @@
+﻿@page "/login"
+@inject NavigationManager Nav
+@inject IHttpClientFactory HttpClientFactory
+@inject HttpClient Http
+
+<h3>Login</h3>
+
+@if (LoginFailed)
+{
+    <p class="text-danger">Login failed or detected as bot.</p>
+}
+
+<EditForm Model="@loginModel" @formname="uniqueFormName" OnValidSubmit="@HandleLogin">
+    <InputText @bind-Value="loginModel.Email" Placeholder="Email" />
+    <InputText @bind-Value="loginModel.Password" type="password" Placeholder="Password" />
+
+    <!-- Honeypot field (invisible to humans) -->
+    <input type="text" name="bot_check" style="display:none;" @bind="loginModel.BotCheck" />
+
+    <button type="submit">Login</button>
+</EditForm>
+
+@code {
+    private LoginModel loginModel = new();
+    private bool LoginFailed = false;
+
+    private async Task HandleLogin()
+    {
+        // Honeypot trap
+        if (!string.IsNullOrEmpty(loginModel.BotCheck))
+        {
+            LoginFailed = true;
+            return;
+        }
+
+        // JS-based cookie check
+        var cookie = await JS.InvokeAsync<string>("getCookie", "humanCheck");
+        if (cookie != "1")
+        {
+            LoginFailed = true;
+            return;
+        }
+
+        // OPTIONAL: validate reCAPTCHA here
+        // await ValidateRecaptcha();
+
+        // TODO: Authenticate user (real auth logic here)
+        LoginFailed = false;
+        Nav.NavigateTo("/dashboard");
+    }
+
+    public class LoginModel
+    {
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+        public string BotCheck { get; set; } = "";  // Honeypot
+    }
+
+    [Inject] IJSRuntime JS { get; set; }
+}
